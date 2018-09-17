@@ -1,15 +1,8 @@
-﻿using ExcelDataReader;
-using MogoMyPti.Entities;
+﻿using MogoMyPti.Entities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MogoMyPti
@@ -109,7 +102,7 @@ namespace MogoMyPti
 
         private void downloadButton_Click(object sender, EventArgs e)
         {
-            exportExcelDialog.FileName = $"{DateTime.Now.Hour.ToString("HH")}-{DateTime.Now.Minute}-export.xlsx";
+            exportExcelDialog.FileName = $"{DateTime.Now.Month}_{DateTime.Now.Day}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_export.xlsx";
             exportExcelDialog.ShowDialog();
             var scGenerator = new ScrapeResultToExcelGenerator(finalResult);
             scGenerator.GenerateExcel(exportExcelDialog.FileName);

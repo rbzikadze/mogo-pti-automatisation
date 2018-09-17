@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MogoMyPti
 {
@@ -40,7 +38,7 @@ namespace MogoMyPti
 
                 var cellData = scrapeResults.Select((result) =>
                 {
-                    return new object[] { result.License, result.StartDate, result.LastDate };
+                    return new object[] { result.License, result.StartDate.HasValue ? result.StartDate.Value.ToString("MM/dd/yyyy") : "", result.LastDate.HasValue ? result.LastDate.Value.ToString("MM/dd/yyyy") : "" };
                 });
 
                 worksheet.Cells[2, 1].LoadFromArrays(cellData);

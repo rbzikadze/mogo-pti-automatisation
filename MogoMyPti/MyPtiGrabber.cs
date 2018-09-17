@@ -2,11 +2,10 @@
 using MogoMyPti.Entities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MogoMyPti
@@ -70,21 +69,45 @@ namespace MogoMyPti
                         tasksList.Add(client.GetAsync($"http://my.pti.ge/nextpti?gov_num={licenseNumber}"));
                     }
 
-                    foreach(var task in tasksList)
+                    foreach (var task in tasksList)
                     {
                         var taskResult = await task;
-
-                        var doc = new HtmlDocument();
-                        doc.LoadHtml(await taskResult.Content.ReadAsStringAsync());
-
-                        var nodes = doc.DocumentNode.Descendants("h5").ToList();
-
-                        result.Add(new ScrapeResult()
+                        if (taskResult.IsSuccessStatusCode)
                         {
-                            License = nodes[0].InnerHtml.Trim(),
-                            LastDate = ExtractDataFromNode(nodes[2]),
-                            StartDate = ExtractDataFromNode(nodes[1])
-                        });
+                            var doc = new HtmlDocument();
+                            doc.LoadHtml(await taskResult.Content.ReadAsStringAsync());
+
+                            var nodes = doc.DocumentNode.Descendants("h5").ToList();
+                            if (nodes.Count >= 3)
+                            {
+                                var lastDate = ExtractDataFromNode(nodes[2]);
+                                var startDate = ExtractDataFromNode(nodes[1]);
+                                if (lastDate.Length > 4 && startDate.Length > 4)
+                                {
+                                    try
+                                    {
+
+                                        result.Add(new ScrapeResult()
+                                        {
+                                            License = nodes[0].InnerHtml.Trim(),
+                                            LastDate = DateTime.ParseExact(lastDate, "dd.MM.yyyy", CultureInfo.InvariantCulture),
+                                            StartDate = DateTime.ParseExact(startDate, "dd.MM.yyyy", CultureInfo.InvariantCulture)
+                                        });
+                                    }
+                                    catch (Exception)
+                                    {
+                                        throw new Exception($"lastDate : {lastDate} startDate: {startDate}");
+                                    }
+                                }
+                                else
+                                    result.Add(new ScrapeResult()
+                                    {
+                                        License = nodes[0].InnerHtml.Trim(),
+                                        LastDate = null,
+                                        StartDate = null
+                                    });
+                            }
+                        }
                     }
                 }
             }

@@ -1,10 +1,6 @@
 ﻿using ExcelDataReader;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MogoMyPti
 {
@@ -30,9 +26,13 @@ namespace MogoMyPti
                     {
                         while (reader.Read())
                         {
-                            result.Add(reader.GetString(0));
+                            var rowData = reader.GetString(0);
+                            if (rowData != null)
+                                if (rowData.Trim().Length != 0)
+                                    result.Add(rowData);
                         }
-                    } while (reader.NextResult());
+                    }
+                    while (reader.NextResult());
                 }
             }
             result.RemoveAt(0);

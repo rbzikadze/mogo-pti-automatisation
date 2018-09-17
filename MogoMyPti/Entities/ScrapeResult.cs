@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MogoMyPti.Entities
 {
-   public class ScrapeResult
+    public class ScrapeResult
     {
         public string License { get; set; }
-        public string StartDate { get; set; }
-        public string LastDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? LastDate { get; set; }
     }
 }
