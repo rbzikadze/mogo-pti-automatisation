@@ -28,11 +28,21 @@ namespace MogoMyPti
             using (var httpHandler = new HttpClientHandler())
             {
                 httpHandler.CookieContainer = new System.Net.CookieContainer();
-                using (var client = new HttpClient(httpHandler))
+                httpHandler.AllowAutoRedirect = true;
+
+                using (var client = new HttpClient(httpHandler) { })
                 {
 
                     var doc = new HtmlDocument();
-                    doc.LoadHtml(await client.GetAsync("http://my.pti.ge/login").Result.Content.ReadAsStringAsync());
+                    var httpResult = client.GetAsync("http://my.pti.ge/login").Result;
+
+                    if (httpResult.StatusCode == HttpStatusCode.Forbidden || httpResult.StatusCode == HttpStatusCode.Redirect)
+                    {
+                        var uri = new Uri("http://my.pti.ge/login");
+                        httpResult = client.GetAsync(uri).Result;
+                    }
+
+                    doc.LoadHtml(await httpResult.Content.ReadAsStringAsync());
 
                     var token = doc.DocumentNode.Descendants("input").Where(x => x.Attributes["name"].Value == "_token").FirstOrDefault().Attributes["value"].Value;
 
