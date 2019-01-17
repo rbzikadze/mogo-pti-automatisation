@@ -53,8 +53,13 @@ namespace MogoMyPti
             {
                 await ptiGrabber.Login();
             }
-            catch (LoginException)
+            catch (LoginException e)
             {
+#if DEBUG
+                Console.WriteLine("დალოგინების შეცდომა");
+                Console.WriteLine(e);
+                Console.ReadLine();
+#endif
                 MessageBox.Show("დალოგინების შეცდომა", "შეცდომა", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Restart();
             }

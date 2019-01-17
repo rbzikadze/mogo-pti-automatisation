@@ -64,7 +64,7 @@ namespace MogoMyPti
         public async Task<List<ScrapeResult>> GrabDataFromPtiAsync(List<string> licenseNumbers)
         {
             var result = new List<ScrapeResult>();
-            var tasksList = new List<Task<HttpResponseMessage>>();
+            var tasksList = new Dictionary<string, Task<HttpResponseMessage>>();
 
             using (var handler = new HttpClientHandler())
             {
@@ -74,14 +74,30 @@ namespace MogoMyPti
 
                 using (var client = new HttpClient(handler))
                 {
+                    client.Timeout = new TimeSpan(0, 2, 0);
+
                     foreach (var licenseNumber in licenseNumbers)
                     {
-                        tasksList.Add(client.GetAsync($"http://my.pti.ge/nextpti?gov_num={licenseNumber}"));
+                        tasksList.Add(licenseNumber, client.GetAsync($"http://my.pti.ge/nextpti?gov_num={licenseNumber}"));
                     }
 
                     foreach (var task in tasksList)
                     {
-                        var taskResult = await task;
+                        var taskResult = new HttpResponseMessage();
+
+                        try
+                        {
+                            taskResult = await task.Value;
+                        }
+                        catch (Exception)
+                        {
+                            result.Add(new ScrapeResult()
+                            {
+                                License = task.Key
+                            });
+                            continue;
+                        }
+
                         if (taskResult.IsSuccessStatusCode)
                         {
                             var doc = new HtmlDocument();

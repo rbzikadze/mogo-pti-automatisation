@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace MogoMyPti
@@ -15,9 +9,18 @@ namespace MogoMyPti
         public delegate void LoggedInEventhandler();
         public event LoggedInEventhandler OnLoggedIn;
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
         public Login()
         {
             InitializeComponent();
+
+#if DEBUG
+            AllocConsole();
+            Console.WriteLine("hi debugging");
+#endif
         }
 
         public string Username { get { return textBox1.Text; } }
